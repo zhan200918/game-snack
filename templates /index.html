@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🐍 Snake Game Premium</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div id="particleContainer"></div>
+    <div class="neon-glow-1"></div>
+    <div class="neon-glow-2"></div>
+    <div class="neon-glow-3"></div>
+
+    <div id="app">
+        <!-- MENU UTAMA -->
+        <div id="menuUtama" class="menu">
+            <div class="menu-container glass-effect">
+                <div class="orb orb-1"></div>
+                <div class="orb orb-2"></div>
+                <div class="orb orb-3"></div>
+                
+                <div class="menu-content">
+                    <div class="logo-container">
+                        <div class="snake-icon">🐍</div>
+                        <h1 class="judul glow-text">SNAKE GAME</h1>
+                        <div class="title-line"></div>
+                        <p class="sub-judul typing-text">CREATED BY FAUZAN</p>
+                    </div>
+                    
+                    <div class="input-group slide-up">
+                        <label>👤 NAMA PEMAIN</label>
+                        <input type="text" id="inputNama" maxlength="20" placeholder="Masukkan nama..." autofocus>
+                        <div class="underline"></div>
+                    </div>
+
+                    <div class="color-group slide-up delay-1">
+                        <label>🎨 PILIH WARNA ULAR</label>
+                        <div class="color-picker">
+                            <button class="color-btn" id="warnaPrev">◀</button>
+                            <div class="color-preview" id="colorPreview">
+                                <span id="warnaNama">Emerald</span>
+                                <div class="color-shine"></div>
+                            </div>
+                            <button class="color-btn" id="warnaNext">▶</button>
+                        </div>
+                    </div>
+
+                    <!-- TOMBOL MULAI - TANPA SHIMMER -->
+                    <button class="btn-start pulse-btn slide-up delay-2" id="btnMulai">
+                        <span class="btn-glow-ring"></span>
+                        <span class="btn-glow-cursor"></span>
+                        <span class="btn-text">
+                            <span class="btn-icon">▶</span> 
+                            MULAI PERMAINAN
+                        </span>
+                    </button>
+                    
+                    <div class="menu-buttons slide-up delay-3">
+                        <button class="btn-history" id="btnRiwayat">
+                            <span class="icon">📊</span> RIWAYAT
+                        </button>
+                        <button class="btn-leaderboard" id="btnLeaderboard">
+                            <span class="icon">🏆</span> PERINGKAT
+                        </button>
+                    </div>
+                    
+                    <div class="admin-wrapper slide-up delay-4">
+                        <button class="btn-admin-glow" id="btnAdmin">
+                            <span class="admin-icon">⚙️</span>
+                            <span class="admin-text">ADMIN PANEL</span>
+                            <span class="admin-badge">🔒</span>
+                            <span class="admin-shine"></span>
+                        </button>
+                        <p class="admin-hint">KEREN KAN BUATAN GUA</p>
+                    </div>
+                    
+                    <div class="version-info slide-up delay-4">
+                        <span>🐍</span>
+                        <span class="dot">•</span>
+                        <span>Made with</span>
+                        <span class="dot">•</span>
+                        <span>HTML · CSS · JS · Python</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME - FIXED -->
+        <div id="gameContainer" style="display: none;">
+            <div class="game-header">
+                <div class="player-info">
+                    <span class="player-name">👤 <span id="namaPemain"></span></span>
+                    <span class="player-score">🍎 <span id="skor">0</span>/<span id="targetSkor">10</span></span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-text" id="progressPersen">0%</span>
+                </div>
+                <div class="game-controls">
+                    <button class="ctrl-btn" id="btnRiwayatGame" title="Riwayat">📊</button>
+                    <button class="ctrl-btn" id="btnLeaderboardGame" title="Peringkat">🏆</button>
+                </div>
+            </div>
+            <div class="canvas-wrapper">
+                <canvas id="gameCanvas"></canvas>
+            </div>
+            <div class="control-info">
+                <span>⬆ W</span>
+                <span>⬇ S</span>
+                <span>⬅ A</span>
+                <span>➡ D</span>
+            </div>
+        </div>
+
+        <!-- MODAL PERTANYAAN -->
+        <div id="modalPertanyaan" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>📝 Jawab Pertanyaan</h2>
+                    <div class="question-header">
+                        <span class="question-number" id="nomorPertanyaan">1/5</span>
+                        <span class="timer" id="timerDisplay">⏱️ 10s</span>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p class="question-text" id="teksPertanyaan">Pertanyaan?</p>
+                    <div class="options" id="pilihanJawaban"></div>
+                </div>
+                <div class="modal-footer">
+                    <p class="hint">Tekan angka 1-4 atau klik pilihan (Waktu: 10 detik)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL RIWAYAT -->
+        <div id="modalRiwayat" class="modal" style="display: none;">
+            <div class="modal-content history-modal">
+                <div class="modal-header">
+                    <h2>📊 RIWAYAT PERMAINAN</h2>
+                    <button class="close-btn" id="closeRiwayat">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="history-table">
+                        <div class="history-header">
+                            <span>Tanggal</span>
+                            <span>Pemain</span>
+                            <span>Skor</span>
+                            <span>Benar/Salah</span>
+                            <span>Status</span>
+                        </div>
+                        <div id="historyList" class="history-list"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-close-modal" id="closeRiwayatBtn">Tutup</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL LEADERBOARD -->
+        <div id="modalLeaderboard" class="modal" style="display: none;">
+            <div class="modal-content leaderboard-modal">
+                <div class="modal-header">
+                    <h2>🏆 PERINGKAT PEMAIN</h2>
+                    <button class="close-btn" id="closeLeaderboard">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="leaderboard-tabs">
+                        <button class="tab-btn active" data-tab="menang">🏆 Paling Menang</button>
+                        <button class="tab-btn" data-tab="skor">⭐ Skor Tertinggi</button>
+                        <button class="tab-btn" data-tab="kuis">📝 Jawaban Benar</button>
+                    </div>
+                    <div id="leaderboardContent" class="leaderboard-content"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-close-modal" id="closeLeaderboardBtn">Tutup</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL LOGIN ADMIN -->
+        <div id="modalLoginAdmin" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 420px;">
+                <div class="modal-header">
+                    <h2>🔐 LOGIN ADMIN</h2>
+                    <button class="close-btn" id="closeLoginAdmin">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display:block;color:#aaa;font-size:14px;margin-bottom:8px;">👤 Username</label>
+                        <input type="text" id="adminUsername" style="width:100%;padding:12px 15px;background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:10px;color:white;font-size:16px;outline:none;" placeholder="Masukkan username">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display:block;color:#aaa;font-size:14px;margin-bottom:8px;">🔑 Password</label>
+                        <input type="password" id="adminPassword" style="width:100%;padding:12px 15px;background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:10px;color:white;font-size:16px;outline:none;" placeholder="Masukkan password">
+                    </div>
+                    <button id="btnLoginAdmin" style="width:100%;padding:14px;background:linear-gradient(135deg,#2196F3,#00BCD4);border:none;border-radius:12px;color:white;font-size:18px;font-weight:bold;cursor:pointer;transition:all 0.3s;">
+                        🔓 LOGIN
+                    </button>
+                    <p id="loginError" style="color:#ff4444;text-align:center;margin-top:15px;display:none;font-size:14px;"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL ADMIN -->
+        <div id="modalAdmin" class="modal" style="display: none;">
+            <div class="modal-content admin-modal" style="max-width: 750px;">
+                <div class="modal-header">
+                    <h2>⚙️ ADMIN MODE</h2>
+                    <button class="close-btn" id="closeAdmin">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div style="background:rgba(255,255,255,0.05);padding:20px;border-radius:12px;margin-bottom:20px;">
+                        <h3 style="color:#ffd700;margin-bottom:15px;">📝 Tambah / Edit Pertanyaan</h3>
+                        <div style="margin-bottom:10px;">
+                            <label style="display:block;color:#aaa;font-size:14px;margin-bottom:5px;">Pertanyaan:</label>
+                            <input type="text" id="adminPertanyaan" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;font-size:16px;">
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                                <label style="display:block;color:#aaa;font-size:14px;margin-bottom:5px;">Pilihan A:</label>
+                                <input type="text" id="adminPilihan0" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;">
+                            </div>
+                            <div>
+                                <label style="display:block;color:#aaa;font-size:14px;margin-bottom:5px;">Pilihan B:</label>
+                                <input type="text" id="adminPilihan1" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;">
+                            </div>
+                            <div>
+                                <label style="display:block;color:#aaa;font-size:14px;margin-bottom:5px;">Pilihan C:</label>
+                                <input type="text" id="adminPilihan2" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;">
+                            </div>
+                            <div>
+                                <label style="display:block;color:#aaa;font-size:14px;margin-bottom:5px;">Pilihan D:</label>
+                                <input type="text" id="adminPilihan3" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;">
+                            </div>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <label style="display:block;color:#aaa;font-size:14px;margin-bottom:5px;">Jawaban Benar (0=A, 1=B, 2=C, 3=D):</label>
+                            <select id="adminJawaban" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:white;">
+                                <option value="0">A</option>
+                                <option value="1">B</option>
+                                <option value="2">C</option>
+                                <option value="3">D</option>
+                            </select>
+                        </div>
+                        <button id="btnTambahPertanyaan" style="margin-top:15px;padding:12px 30px;background:linear-gradient(135deg,#2196F3,#00BCD4);border:none;border-radius:10px;color:white;font-size:16px;cursor:pointer;">
+                            ➕ Tambah Pertanyaan
+                        </button>
+                        <button id="btnBatalEdit" style="margin-top:15px;padding:12px 30px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:white;font-size:16px;cursor:pointer;display:none;">
+                            ❌ Batal Edit
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <h3 style="color:#ffd700;margin-bottom:15px;">📋 Daftar Pertanyaan (Total: <span id="totalPertanyaan">0</span>)</h3>
+                        <div id="daftarPertanyaan" style="max-height:300px;overflow-y:auto;"></div>
+                    </div>
+
+                    <div style="margin-top:25px;padding-top:20px;border-top:2px solid rgba(255,255,255,0.05);">
+                        <h3 style="color:#ff4444;margin-bottom:15px;">🗑️ RESET DATA</h3>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <button id="btnResetPertanyaan" style="padding:12px 30px;background:rgba(255,215,0,0.1);border:2px solid rgba(255,215,0,0.3);border-radius:10px;color:#ffd700;font-size:16px;cursor:pointer;">
+                                🔄 Reset Pertanyaan
+                            </button>
+                            <button id="btnResetDataAdmin" style="padding:12px 30px;background:rgba(255,68,68,0.2);border:2px solid rgba(255,68,68,0.3);border-radius:10px;color:#ff4444;font-size:16px;cursor:pointer;">
+                                🗑️ Reset Riwayat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-close-modal" id="closeAdminBtn">Tutup</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL GAME OVER -->
+        <div id="modalGameOver" class="modal" style="display: none;">
+            <div class="modal-content gameover-modal">
+                <div class="modal-body">
+                    <h1 id="gameOverTitle">💀 GAME OVER</h1>
+                    <p id="gameOverSubtitle"></p>
+                    <div class="gameover-stats">
+                        <p>👤 <span id="goNama"></span></p>
+                        <p>🍎 Skor: <span id="goSkor">0</span>/<span id="goTarget">10</span></p>
+                    </div>
+                    <div class="gameover-buttons">
+                        <button class="btn-restart" id="btnRestart">🔄 Main Lagi</button>
+                        <button class="btn-quit" id="btnQuit">🚪 Keluar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL HASIL -->
+        <div id="modalHasil" class="modal" style="display: none;">
+            <div class="modal-content hasil-modal">
+                <div class="modal-body">
+                    <h1 id="hasilTitle">✅</h1>
+                    <p id="hasilText"></p>
+                    <button class="btn-continue" id="btnLanjut">Lanjut</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL HASIL KUIS -->
+        <div id="modalHasilKuis" class="modal" style="display: none;">
+            <div class="modal-content hasil-modal">
+                <div class="modal-body">
+                    <h1 id="hasilKuisTitle">📊</h1>
+                    <p id="hasilKuisText"></p>
+                    <div class="kuis-stats">
+                        <p>✅ Benar: <span id="benarCount">0</span></p>
+                        <p>❌ Salah: <span id="salahCount">0</span></p>
+                    </div>
+                    <button class="btn-continue" id="btnKembaliMenu">🏠 Kembali ke Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL KONFIRMASI -->
+        <div id="modalKonfirmasi" class="modal" style="display: none;">
+            <div class="modal-content confirm-modal">
+                <div class="modal-body">
+                    <h1 style="font-size: 48px; text-align: center;">⚠️</h1>
+                    <h2 style="text-align: center; color: #ff4444;">Yakin ingin reset semua data?</h2>
+                    <p style="text-align: center; color: #aaa; margin: 20px 0;">
+                        Semua riwayat permainan akan dihapus permanen!
+                    </p>
+                    <div class="confirm-buttons" style="display: flex; gap: 15px; justify-content: center;">
+                        <button class="btn-confirm-yes" id="btnConfirmYes" style="padding: 12px 30px; background: #ff4444; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                            ✅ Ya, Reset
+                        </button>
+                        <button class="btn-confirm-no" id="btnConfirmNo" style="padding: 12px 30px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; font-size: 16px; cursor: pointer;">
+                            ❌ Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
